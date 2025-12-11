@@ -6,92 +6,47 @@ import { v4 } from 'uuid'
 
 function App() {
   const [professores, setProfessores] = useState([])
-
-  // REQUISIÇÃO DOS MATERIAS QUE ESTÃO NO BANCO DE DADOS MYSQL
-  useEffect(() => {
-    const buscarProfs = async () => {
-      try {
-        const url = `http://10.69.102.195:3000/professores`
-        const resposta = await fetch(url)
-        const json = await resposta.json()
-        setProfessores(json);
-      } catch (error) {
-        console.error('Erro ao buscar professor', error)
-      }
-    }
-
-    buscarProfs();
-  }, []);
-
+  const [cabos, setCabos] = useState([])
+  const [controles, setControles] = useState([])
   const [notebooks, setNotebooks] = useState([])
-
-  useEffect(() => {
-    const buscarNotes = async () => {
-      try {
-        const url = `http://10.69.102.195:3000/notebooks`
-        const resposta = await fetch(url)
-        const json = await resposta.json()
-        setNotebooks(json);
-      } catch (error) {
-        console.error('Erro ao buscar professor', error)
-      }
-    }
-
-    buscarNotes();
-  }, []);
-
   const [fontes, setFontes] = useState([])
 
-  useEffect(() => {
-    const buscarFontes = async () => {
-      try {
-        const url = `http://10.69.102.195:3000/fontes`
-        const resposta = await fetch(url)
-        const json = await resposta.json()
-        setFontes(json);
-      } catch (error) {
-        console.error('Erro ao buscar professor', error)
-      }
-    }
-
-    buscarFontes();
-  }, []);
-
-  const [cabos, setCabos] = useState([])
+  // URL DO BANCO DE DADOS
+  const API_URL = "http://10.69.102.195:3000"
 
   useEffect(() => {
-    const buscarCabos = async () => {
+    const Load = async () => {
       try {
-        const url = `http://10.69.102.195:3000/hdmis`
-        const resposta = await fetch(url)
-        const json = await resposta.json()
-        setCabos(json);
+        // REQUISIÇÕES
+        const [resProfessores, resCabos, resControles, resNotes, resFontes] = await Promise.all([
+          fetch(`${API_URL}/professores`),
+          fetch(`${API_URL}/hdmis`),
+          fetch(`${API_URL}/controles`),
+          fetch(`${API_URL}/notebooks`),
+          fetch(`${API_URL}/fontes`)
+        ]);
+
+        // CONVERTE TUDO PARA JSON
+        const professoresData = await resProfessores.json()
+        const cabosData = await resCabos.json()
+        const controlesData = await resControles.json()
+        const notebooksData = await resNotes.json()
+        const fontesData = await resFontes.json()
+
+        // ATUALIZA OS STATES
+        setProfessores(professoresData)
+        setCabos(cabosData)
+        setControles(controlesData)
+        setNotebooks(notebooksData)
+        setFontes(fontesData)
+
       } catch (error) {
-        console.error('Erro ao buscar cabos', error)
+        console.error("Erro ao carregar dados:", error)
       }
-    }
+    };
 
-    buscarCabos();
-  }, []);
-
-  const [controles, setControles] = useState([])
-
-  useEffect(() => {
-    const buscarControles = async () => {
-      try {
-        const url = `http://10.69.102.195:3000/controles`
-        const resposta = await fetch(url)
-        const json = await resposta.json()
-        setControles(json);
-      } catch (error) {
-        console.error('Erro ao buscar professor', error)
-      }
-    }
-
-    buscarControles();
-  }, []);
-  // FIM DAS REQUISIÇÕES
-
+    Load();
+  }, [])
 
   // ARRAY QUE SALVA OS ITENS EMPRESTADOS + SALVAMENTO DE DADOS LOCAIS
   const [emprestados, setEmprestados] = useState(() => {
