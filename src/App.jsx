@@ -62,9 +62,9 @@ function App() {
     localStorage.setItem("sistema-emprestimos", JSON.stringify(emprestados))
   }, [emprestados])
 
-  
+
   // FUNÇÃO PARA REALIZAR O EMPRÉSTIMO
-  function onAddEmpSubmit(prof, cab, contr, note, font, cx) {
+  function onAddEmpSubmit(prof, cab, contr, note, font, cx, obs) {
     const NewEmp = {
       id: v4(),
       prof,
@@ -76,15 +76,18 @@ function App() {
     }
     setEmprestados([...emprestados, NewEmp])
     console.log(NewEmp)
+  }
 
+  function onDevolverSubmit(item, observacaoTexto) {
     const dataSheets = {
-      professor: prof.nome,
-      cabo: cab.hdmi,
-      controle: contr.controle,
-      notebook: note.notebook,
-      fonte: font.fonte,
+      professor: item.prof.nome,
+      cabo: item.cab.hdmi,
+      controle: item.contr.controle,
+      notebook: item.note.notebook,
+      fonte: item.font.fonte,
       data: new Date().toLocaleDateString(),
-      hora: new Date().toLocaleTimeString()
+      hora: new Date().toLocaleTimeString(),
+      observação: observacaoTexto
     }
 
     fetch('https://sheetdb.io/api/v1/2akz4c3q3y2z9', {
@@ -93,17 +96,17 @@ function App() {
         'Accept': 'aplication/json',
         'Content-Type': 'aplication/json'
       },
-      body: JSON.stringify({ data: dataSheets})
+      body: JSON.stringify({ data: dataSheets })
     })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("SUCESSOK! SALVO NA PLANILHA:", data);
-      alert("SALVO NA NUVEM COM SUCESSO!");
-    })
-    .catch((error) => {
-      console.error('ERRO AO SALVAR:', error);
-      alert("ERRO AO SALVAR NA NUVEM")
-    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("SUCESSOK! SALVO NA PLANILHA:", data);
+        alert("SALVO NA NUVEM COM SUCESSO!");
+      })
+      .catch((error) => {
+        console.error('ERRO AO SALVAR:', error);
+        alert("ERRO AO SALVAR NA NUVEM")
+      })
   }
 
   // FUNÇÃO PARA DELETAR OS ITENS EMPRESTADOS / CONFIRMAR A DEVOLUÇÃO
@@ -135,6 +138,8 @@ function App() {
           <Materials
             emprestados={emprestados}
             onDeleteEmp={onDeleteEmp}
+            onAddEmpSubmit={onAddEmpSubmit}
+            onDevolverSubmit={onDevolverSubmit}
           />
         </div>
 
@@ -144,3 +149,35 @@ function App() {
 }
 
 export default App
+
+/*
+const dataSheets = {
+      professor: prof.nome,
+      cabo: cab.hdmi,
+      controle: contr.controle,
+      notebook: note.notebook,
+      fonte: font.fonte,
+      data: new Date().toLocaleDateString(),
+      hora: new Date().toLocaleTimeString(),
+      observação: obs,
+    }
+
+    fetch('https://sheetdb.io/api/v1/2akz4c3q3y2z9', {
+      method: 'POST',
+      headers: {
+        'Accept': 'aplication/json',
+        'Content-Type': 'aplication/json'
+      },
+      body: JSON.stringify({ data: dataSheets})
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("SUCESSOK! SALVO NA PLANILHA:", data);
+      alert("SALVO NA NUVEM COM SUCESSO!");
+    })
+    .catch((error) => {
+      console.error('ERRO AO SALVAR:', error);
+      alert("ERRO AO SALVAR NA NUVEM")
+    })
+
+*/

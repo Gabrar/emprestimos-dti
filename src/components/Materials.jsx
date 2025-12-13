@@ -2,7 +2,7 @@ import { Check, MarsStroke, TrashIcon } from "lucide-react"
 import { v4 } from "uuid"
 import Swal from 'sweetalert2';
 
-function Materials({ emprestados, onDeleteEmp }) {
+function Materials({ emprestados, onDeleteEmp, onAddEmpSubmit, onDevolverSubmit }) {
 
     return (
         <ul className="space-y-4 p-6">
@@ -34,8 +34,16 @@ function Materials({ emprestados, onDeleteEmp }) {
                                     Swal.fire({
                                         title: "Confirmado!",
                                         text: "O empréstimo foi constado como devolvido.",
-                                        icon: "success"
-                                    });
+                                        icon: "success",
+                                        input: "text",
+                                        inputPlaceholder: "Alguma observação?"
+                                    }).then((inputResult) => {
+                                        if(inputResult.isConfirmed) {
+                                            const obs = inputResult.value || "Sem observação"
+
+                                            onDevolverSubmit(emp, obs)
+                                        }
+                                    })
                                     onDeleteEmp(emp.id);
                                 }
                             });
