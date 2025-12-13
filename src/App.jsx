@@ -12,7 +12,7 @@ function App() {
   const [fontes, setFontes] = useState([])
 
   // URL DO BANCO DE DADOS
-  const API_URL = "http://10.69.102.195:3000"
+  const API_URL = "http://10.69.112.3:3000"
 
   useEffect(() => {
     const Load = async () => {
@@ -76,6 +76,34 @@ function App() {
     }
     setEmprestados([...emprestados, NewEmp])
     console.log(NewEmp)
+
+    const dataSheets = {
+      professor: prof.nome,
+      cabo: cab.hdmi,
+      controle: contr.controle,
+      notebook: note.notebook,
+      fonte: font.fonte,
+      data: new Date().toLocaleDateString(),
+      hora: new Date().toLocaleTimeString()
+    }
+
+    fetch('https://sheetdb.io/api/v1/2akz4c3q3y2z9', {
+      method: 'POST',
+      headers: {
+        'Accept': 'aplication/json',
+        'Content-Type': 'aplication/json'
+      },
+      body: JSON.stringify({ data: dataSheets})
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("SUCESSOK! SALVO NA PLANILHA:", data);
+      alert("SALVO NA NUVEM COM SUCESSO!");
+    })
+    .catch((error) => {
+      console.error('ERRO AO SALVAR:', error);
+      alert("ERRO AO SALVAR NA NUVEM")
+    })
   }
 
   // FUNÇÃO PARA DELETAR OS ITENS EMPRESTADOS / CONFIRMAR A DEVOLUÇÃO
