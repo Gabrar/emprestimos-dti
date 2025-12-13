@@ -1,5 +1,6 @@
 import { Check, MarsStroke, TrashIcon } from "lucide-react"
 import { v4 } from "uuid"
+import Swal from 'sweetalert2';
 
 function Materials({ emprestados, onDeleteEmp }) {
 
@@ -18,7 +19,27 @@ function Materials({ emprestados, onDeleteEmp }) {
 
                     <button
                         className="bg-slate-400 text-white rounded-md cursor-pointer"
-                        onClick={() => onDeleteEmp(emp.id)}
+                        onClick={() => {
+                            Swal.fire({
+                                title: "Você tem certeza?",
+                                text: "Não será possível revertar esta ação!",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: "#3085d6",
+                                cancelButtonColor: "#d33",
+                                confirmButtonText: "Sim!",
+                                cancelButtonText: "Não."
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    Swal.fire({
+                                        title: "Confirmado!",
+                                        text: "O empréstimo foi constado como devolvido.",
+                                        icon: "success"
+                                    });
+                                    onDeleteEmp(emp.id);
+                                }
+                            });
+                        }}
                     >
                         <Check />
                     </button>
