@@ -87,7 +87,7 @@ function App() {
       fonte: item.font.fonte,
       data: new Date().toLocaleDateString(),
       hora: new Date().toLocaleTimeString(),
-      observação: observacaoTexto
+      observação: observacaoTexto,
     }
 
     fetch('https://sheetdb.io/api/v1/2akz4c3q3y2z9', {
