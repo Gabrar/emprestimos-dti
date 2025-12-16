@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import './App.css'
 import Items from './components/Items'
 import Materials from './components/Materials'
 import { v4 } from 'uuid'
@@ -10,20 +9,22 @@ function App() {
   const [controles, setControles] = useState([])
   const [notebooks, setNotebooks] = useState([])
   const [fontes, setFontes] = useState([])
+  const [caixas, setCaixas] = useState([])
 
   // URL DO BANCO DE DADOS
-  const API_URL = "http://10.69.112.3:3000"
+  const API_URL = "http://10.69.64.230:3000"
 
   useEffect(() => {
     const Load = async () => {
       try {
         // REQUISIÇÕES
-        const [resProfessores, resCabos, resControles, resNotes, resFontes] = await Promise.all([
+        const [resProfessores, resCabos, resControles, resNotes, resFontes, resCaixas] = await Promise.all([
           fetch(`${API_URL}/professores`),
           fetch(`${API_URL}/hdmis`),
           fetch(`${API_URL}/controles`),
           fetch(`${API_URL}/notebooks`),
-          fetch(`${API_URL}/fontes`)
+          fetch(`${API_URL}/fontes`),
+          fetch(`${API_URL}/caixas`)
         ]);
 
         // CONVERTE TUDO PARA JSON
@@ -32,6 +33,7 @@ function App() {
         const controlesData = await resControles.json()
         const notebooksData = await resNotes.json()
         const fontesData = await resFontes.json()
+        const caixasData = await resCaixas.json()
 
         // ATUALIZA OS STATES
         setProfessores(professoresData)
@@ -39,6 +41,7 @@ function App() {
         setControles(controlesData)
         setNotebooks(notebooksData)
         setFontes(fontesData)
+        setCaixas(caixasData)
 
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
@@ -78,6 +81,7 @@ function App() {
     console.log(NewEmp)
   }
 
+  // FUNÇÃO QUE ENVIA OS DADOS EMPRESTADOS PARA UMA PLANILHA ONLINE EXCEL
   function onDevolverSubmit(item, observacaoTexto) {
     const dataSheets = {
       professor: item.prof.nome,
@@ -85,6 +89,7 @@ function App() {
       controle: item.contr.controle,
       notebook: item.note.notebook,
       fonte: item.font.fonte,
+      som: item.cx.caixa,
       data: new Date().toLocaleDateString(),
       hora: new Date().toLocaleTimeString(),
       observação: observacaoTexto,
@@ -101,7 +106,6 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         console.log("SUCESSOK! SALVO NA PLANILHA:", data);
-        alert("SALVO NA NUVEM COM SUCESSO!");
       })
       .catch((error) => {
         console.error('ERRO AO SALVAR:', error);
@@ -128,6 +132,7 @@ function App() {
           notebooks={notebooks}
           fontes={fontes}
           controles={controles}
+          caixas={caixas}
           onAddEmpSubmit={onAddEmpSubmit}
         />
       </div>
@@ -140,44 +145,13 @@ function App() {
             onDeleteEmp={onDeleteEmp}
             onAddEmpSubmit={onAddEmpSubmit}
             onDevolverSubmit={onDevolverSubmit}
-          />
+          />        
         </div>
 
       </div>
+
     </div>
   )
 }
 
 export default App
-
-/*
-const dataSheets = {
-      professor: prof.nome,
-      cabo: cab.hdmi,
-      controle: contr.controle,
-      notebook: note.notebook,
-      fonte: font.fonte,
-      data: new Date().toLocaleDateString(),
-      hora: new Date().toLocaleTimeString(),
-      observação: obs,
-    }
-
-    fetch('https://sheetdb.io/api/v1/2akz4c3q3y2z9', {
-      method: 'POST',
-      headers: {
-        'Accept': 'aplication/json',
-        'Content-Type': 'aplication/json'
-      },
-      body: JSON.stringify({ data: dataSheets})
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("SUCESSOK! SALVO NA PLANILHA:", data);
-      alert("SALVO NA NUVEM COM SUCESSO!");
-    })
-    .catch((error) => {
-      console.error('ERRO AO SALVAR:', error);
-      alert("ERRO AO SALVAR NA NUVEM")
-    })
-
-*/
