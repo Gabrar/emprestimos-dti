@@ -1,16 +1,23 @@
 import { use, useState } from "react"
-import { v4 } from 'uuid'
+import Swal from "sweetalert2"
+import Message from "./Message"
 
-function Items({ professores, cabos, controles, notebooks, fontes, onAddEmpSubmit }) {
+function Items({ professores, cabos, controles, notebooks, fontes, caixas, onAddEmpSubmit }) {
 
     const [prof, setProf] = useState("")
     const [cab, setCab] = useState("")
     const [contr, setContr] = useState("")
     const [note, setNote] = useState("")
     const [font, setFont] = useState("")
+    const [cx, setCx] = useState("")
 
+    const [isMessageVisible, setIsMessageVisible] = useState(false);
+    // STATES DA FLASH MESSAGE QUE ATUALIZARÃO APÓS CLICAR NO BOTÃO DE CONFIRMAR
+    const closeMessage = () => {
+        setIsMessageVisible(false)
+    }
+    
     return (
-
         <ul className="flex flex-col gap-3">
             <li>
                 <select className='w-full bg-white p-2 rounded-md' id=""
@@ -119,34 +126,57 @@ function Items({ professores, cabos, controles, notebooks, fontes, onAddEmpSubmi
                 </select>
             </li>
             <li>
-                <select className='w-full bg-white p-2 rounded-md'>
-                    <option value={1}>Caixa de som</option>
+                <select className='w-full bg-white p-2 rounded-md'
+                    value={cx?.id || ''}
+                    onChange={(e) => {
+                        const idSelecionado = e.target.value
+
+                        const caixaCompleto = caixas.find(p => String(p.id) === idSelecionado)
+                        setCx(caixaCompleto)
+                    }}
+                >
+                    <option value=''>Caixa de som</option>
+                    {caixas.map((item) => (
+                        <option
+                            value={item.id}
+                            key={item.id}
+                        >
+                            {item.caixa} - {item.marca}
+                        
+                        </option>
+                    ))}
                 </select>
             </li>
             <button className='w-32 bg-white p-2 rounded-md cursor-pointer hover:bg-slate-300 duration-100 ease-in self-center outline-1 outline-slate-400'
                 onClick={() => {
-
+             
                     if (!prof) {
-                        return alert("INFORME O PROFESSOR")
-                    }
-                    onAddEmpSubmit(prof, cab, contr, note, font);
+                        return Swal.fire({
+                            text: "Informe o professor.",
+                            icon: "warning"
+                        })
+                    }   
+
+                    onAddEmpSubmit(prof, cab, contr, note, font, cx);
+                    setIsMessageVisible(true)
                     setProf('');
                     setCab('')
                     setContr('')
                     setNote('')
                     setFont('')
+                    setCx('')    
                 }}
             >
                 Confirmar
             </button>
+            <Message 
+                msg='Empréstimo feito com sucesso!'
+                type='sucess'
+                visible={isMessageVisible}
+                onClose={closeMessage}
+            />
         </ul>
     )
 }
 
 export default Items
-
-/*
-    if (!prof.trim() || !contr.trim() || !cab.trim() || !note.trim() || !font.trim()) {
-                        return alert("PREENCHA TODOS OS CAMPOS!")
-                    }
-*/
