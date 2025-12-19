@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Items from './components/Items'
 import Materials from './components/Materials'
+import { useAuth } from './AuthContext'
 import { v4 } from 'uuid'
 
 function App() {
@@ -11,8 +12,14 @@ function App() {
   const [fontes, setFontes] = useState([])
   const [caixas, setCaixas] = useState([])
 
+  const { user, logout } = useAuth()
+
+  if (!user || !user.sheetUrl) {
+    return <div>EROO: Dados de administrador incompletos.</div>
+  }
+
   // URL DO BANCO DE DADOS
-  const API_URL = "http://10.69.64.230:3000"
+  const API_URL = "http://10.69.69.248:3000"
 
   useEffect(() => {
     const Load = async () => {
@@ -65,9 +72,15 @@ function App() {
     localStorage.setItem("sistema-emprestimos", JSON.stringify(emprestados))
   }, [emprestados])
 
+  let hour
+  let date
 
   // FUNÇÃO PARA REALIZAR O EMPRÉSTIMO
-  function onAddEmpSubmit(prof, cab, contr, note, font, cx, obs) {
+  function onAddEmpSubmit(prof, cab, contr, note, font, cx) {
+
+    hour = new Date().toLocaleTimeString()
+    date = new Date().toLocaleDateString()
+
     const NewEmp = {
       id: v4(),
       prof,
@@ -75,27 +88,34 @@ function App() {
       contr,
       note,
       font,
+      hora: hour,
+      data: date,
       cx
     }
+    
     setEmprestados([...emprestados, NewEmp])
     console.log(NewEmp)
   }
 
   // FUNÇÃO QUE ENVIA OS DADOS EMPRESTADOS PARA UMA PLANILHA ONLINE EXCEL
+  const CURRENT_SHEET_URL = user.sheetUrl
+
   function onDevolverSubmit(item, observacaoTexto) {
     const dataSheets = {
-      professor: item.prof.nome,
-      cabo: item.cab.hdmi,
-      controle: item.contr.controle,
-      notebook: item.note.notebook,
-      fonte: item.font.fonte,
-      som: item.cx.caixa,
-      data: new Date().toLocaleDateString(),
-      hora: new Date().toLocaleTimeString(),
-      observação: observacaoTexto,
+      Professor: item.prof.nome,
+      Cabo: item.cab.hdmi,
+      Controle: item.contr.controle,
+      Notebook: item.note.notebook,
+      Fonte: item.font.fonte,
+      Som: item.cx.caixa,
+      Hora_do_empréstimo: item.hora,
+      Data_do_empréstimo: item.data,
+      Hora_da_devolução: new Date().toLocaleTimeString(),
+      Data_da_devolução: new Date().toLocaleDateString(),
+      Observações: observacaoTexto,
     }
 
-    fetch('https://sheetdb.io/api/v1/2akz4c3q3y2z9', {
+    fetch(CURRENT_SHEET_URL, {
       method: 'POST',
       headers: {
         'Accept': 'aplication/json',
@@ -135,6 +155,11 @@ function App() {
           caixas={caixas}
           onAddEmpSubmit={onAddEmpSubmit}
         />
+
+        <button 
+        className='fixed bottom-4 left-3 bg-white p-2 rounded-md cursor-pointer hover:bg-slate-300 duration-100 ease-in self-center outline-1 outline-slate-400'
+        onClick={() => logout()}
+        >LogOut</button>
       </div>
 
       <div className='flex-1 m-4 bg-slate-200 rounded-xl'>
